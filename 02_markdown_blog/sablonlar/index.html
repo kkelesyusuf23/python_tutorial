@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog Ana Sayfa</title>
+</head>
+<body>
+    <h1>Tüm Yazılar</h1>
+    <ul>
+        <!-- Python'dan gelen listeyi döngüye sokuyoruz -->
+        {% for yazi in yazilar %}
+            <li>
+                <a href="/yazi/{{ yazi }}">{{ yazi }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
