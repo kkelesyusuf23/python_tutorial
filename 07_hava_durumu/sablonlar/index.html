@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hava Durumu Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            margin: 0 0 30px 0;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        .result-container {
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .temperature {
+            font-size: 64px;
+            font-weight: 800;
+            color: #60a5fa;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+        }
+
+        .location {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .details {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 20px;
+        }
+        
+        .badge {
+            background: rgba(167, 139, 250, 0.2);
+            color: #c4b5fd;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-card">
+        <h1>Hava Durumu</h1>
+        
+        <form action="/sorgula" method="GET">
+            <input type="text" name="sehir" placeholder="Şehir adı girin (Örn: Istanbul)" required autocomplete="off" autofocus>
+            <button type="submit">Sorgula</button>
+        </form>
+
+        {% if hata %}
+            <div class="error-message">
+                {{ hata }}
+            </div>
+        {% endif %}
+
+        {% if veri %}
+            <div class="result-container">
+                <div class="location">
+                    🌍 {{ veri.sehir }}, {{ veri.ulke }}
+                    {% if cached %}
+                        <span class="badge">⚡ Önbellekten</span>
+                    {% endif %}
+                </div>
+                <div class="temperature">{{ veri.sicaklik }}°C</div>
+                <div class="details">
+                    🌬️ Rüzgar: {{ veri.ruzgar }} km/s
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

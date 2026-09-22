@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit.ly Klonu - URL Kısaltıcı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', sans-serif; }
+        
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4rem 1rem;
+        }
+
+        .container { width: 100%; max-width: 700px; }
+
+        h1 { font-size: 2.5rem; text-align: center; color: #4f46e5; margin-bottom: 0.5rem; }
+        p.subtitle { text-align: center; color: #6b7280; margin-bottom: 2rem; font-size: 1.1rem; }
+
+        .form-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-box input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-box input:focus { border-color: #4f46e5; }
+
+        .form-box button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .form-box button:hover { background: #4338ca; transform: translateY(-2px); }
+
+        .links-list { display: flex; flex-direction: column; gap: 1rem; }
+
+        .link-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #4f46e5;
+            transition: transform 0.2s ease;
+        }
+        
+        .link-card:hover { transform: scale(1.02); }
+
+        .link-info { display: flex; flex-direction: column; gap: 0.5rem; overflow: hidden; }
+        
+        .short-url { font-weight: 700; color: #4f46e5; font-size: 1.2rem; text-decoration: none; }
+        .short-url:hover { text-decoration: underline; }
+        
+        .long-url { color: #9ca3af; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+
+        .stats {
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        
+        .stats-num { font-weight: 700; font-size: 1.3rem; color: #111827; }
+        .stats-label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Link Kısaltıcı</h1>
+        <p class="subtitle">Uzun ve karmaşık linkleri kısaltın, tıklanma istatistiklerini takip edin.</p>
+
+        <form class="form-box" action="/kisalt" method="post">
+            <input type="url" name="uzun_url" placeholder="Uzun linki buraya yapıştırın (https://...)" required>
+            <input type="text" name="ozel_kod" placeholder="Özel Kod (İsteğe Bağlı)" style="flex: 0.4;">
+            <button type="submit">Kısalt</button>
+        </form>
+
+        <script>
+            // Eğer URL'de hata parametresi varsa kullanıcıyı uyar
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('hata') === 'kod_kullanimda') {
+                alert("🚨 Bu özel kod zaten başka bir link tarafından kullanılıyor! Lütfen başka bir kelime deneyin.");
+                // Uyarıdan sonra adres çubuğundaki parametreyi temizle
+                window.history.replaceState({}, document.title, "/");
+            }
+        </script>
+
+        <div class="links-list">
+            {% for link in linkler %}
+            <div class="link-card">
+                <div class="link-info">
+                    <a href="/{{ link.kisa_kod }}" target="_blank" class="short-url">localhost:8000/{{ link.kisa_kod }}</a>
+                    <span class="long-url" title="{{ link.uzun_url }}">{{ link.uzun_url }}</span>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="stats">
+                        <span class="stats-num">{{ link.tiklanma_sayisi }}</span>
+                        <span class="stats-label">Tıklanma</span>
+                    </div>
+                    <form action="/sil/{{ link.id }}" method="post" style="margin: 0;">
+                        <button type="submit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Sil">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not linkler %}
+            <p style="text-align: center; color: #9ca3af; margin-top: 2rem;">Henüz hiç link kısaltmadınız.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

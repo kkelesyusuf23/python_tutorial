@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonim İtiraf Panosu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            padding: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #a855f7;
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(to right, #8b5cf6, #d946ef);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(217, 70, 239, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .confession-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .confession-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .confession-card:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .confession-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+            font-style: italic;
+        }
+
+        .confession-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        
+        .ip-badge {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+
+        .custom-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+            animation: slideDown 0.4s ease forwards, fadeOut 0.5s ease 4s forwards;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gölgelerin Panosu</h1>
+
+        {% if hata %}
+        <div class="custom-alert">
+            🚨 {{ hata }}
+        </div>
+        {% endif %}
+        
+        <div class="form-container">
+            <form action="/itiraf-et" method="post">
+                <textarea name="mesaj" placeholder="İçinden geçenleri anonim olarak dök... Kimse seni yargılamayacak." required></textarea>
+                <button type="submit">İtirafı Gönder</button>
+            </form>
+        </div>
+        
+        <h2 class="confession-title">Son İtiraflar</h2>
+        
+        <div class="confessions-list">
+            {% for itiraf in itiraflar %}
+                <div class="confession-card">
+                    <p class="confession-text">"{{ itiraf.mesaj }}"</p>
+                    <div class="confession-meta">
+                        <span class="date">{{ itiraf.tarih }}</span>
+                        <span class="ip-badge">IP: {{ itiraf.ip_adresi }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            {% if not itiraflar %}
+                <p style="text-align: center; color: #64748b; margin-top: 2rem;">Henüz hiç itiraf yok. İlk itiraf eden sen ol!</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

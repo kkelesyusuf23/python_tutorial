@@ -1,0 +1,8 @@
+[
+    { "id": 1, "adi": "Tam Yağlı Süt", "fiyat": 25, "ikon": "🥛" },
+    { "id": 2, "adi": "Taze Ekmek", "fiyat": 10, "ikon": "🍞" },
+    { "id": 3, "adi": "Yeşil Elma", "fiyat": 30, "ikon": "🍏" },
+    { "id": 4, "adi": "Sütlü Çikolata", "fiyat": 15, "ikon": "🍫" },
+    { "id": 5, "adi": "Filtre Kahve", "fiyat": 90, "ikon": "☕" },
+    { "id": 6, "adi": "Yumurta (10'lu)", "fiyat": 45, "ikon": "🥚" }
+]
