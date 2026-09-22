@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTful Kütüphane</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin: 0 0 10px 0;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-sub);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #f1f5f9;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .authors-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .author-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .author-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+
+        .author-country {
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .book-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .book-item {
+            background-color: rgba(15, 23, 42, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .book-pages {
+            font-size: 12px;
+            color: var(--text-sub);
+            background-color: #334155;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-sub);
+            padding: 10px;
+            font-style: italic;
+        }
+
+        .api-link {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .api-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>RESTful Kütüphane</h1>
+        <p>Bire Çok (One-to-Many) İlişkisel Veritabanı Sistemi</p>
+    </div>
+
+    <div class="grid-container">
+        <!-- Yazar Ekleme Kartı -->
+        <div class="card">
+            <h2>✍️ Yeni Yazar Ekle</h2>
+            <form action="/yazar_ekle" method="POST">
+                <div class="form-group">
+                    <label>Yazarın Adı</label>
+                    <input type="text" name="isim" class="form-control" placeholder="Örn: J.K. Rowling" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Memleketi / Ülke</label>
+                    <input type="text" name="ulke" class="form-control" placeholder="Örn: İngiltere" required autocomplete="off">
+                </div>
+                <button type="submit">Yazar Oluştur</button>
+            </form>
+        </div>
+
+        <!-- Kitap Ekleme Kartı -->
+        <div class="card">
+            <h2>📚 Yeni Kitap Ekle</h2>
+            <form action="/kitap_ekle" method="POST">
+                <div class="form-group">
+                    <label>Kitabın Adı</label>
+                    <input type="text" name="baslik" class="form-control" placeholder="Örn: Harry Potter" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Sayfa Sayısı</label>
+                    <input type="number" name="sayfa_sayisi" class="form-control" placeholder="Örn: 350" required>
+                </div>
+                <div class="form-group">
+                    <label>Hangi Yazara Ait?</label>
+                    <select name="yazar_id" class="form-control" required>
+                        <option value="" disabled selected>-- Bir Yazar Seçin --</option>
+                        {% for yazar in yazarlar %}
+                            <option value="{{ yazar.id }}">{{ yazar.isim }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Kitabı Ekle ve Bağla</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Yazarların ve Kitapların Listesi -->
+    <h2 style="text-align: center; margin-bottom: 30px;">Kütüphane Arşivi</h2>
+    <div class="authors-list">
+        {% for yazar in yazarlar %}
+            <div class="author-card">
+                <div class="author-name">{{ yazar.isim }}</div>
+                <div class="author-country">📍 {{ yazar.ulke }}</div>
+                
+                <ul class="book-list">
+                    {% if yazar.kitaplar %}
+                        {% for kitap in yazar.kitaplar %}
+                            <li class="book-item">
+                                <span class="book-title">{{ kitap.baslik }}</span>
+                                <span class="book-pages">{{ kitap.sayfa_sayisi }} Syf</span>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">Henüz kitap eklenmemiş.</div>
+                    {% endif %}
+                </ul>
+            </div>
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-sub);">
+                Veritabanı şu an boş. Hemen yukarıdan bir yazar ekleyerek başlayın!
+            </div>
+        {% endfor %}
+    </div>
+
+    <a href="/api/yazarlar" target="_blank" class="api-link">🔌 RESTful JSON API Verisini Gör (/api/yazarlar)</a>
+</div>
+
+</body>
+</html>
