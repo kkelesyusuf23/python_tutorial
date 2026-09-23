@@ -1,0 +1,44 @@
+[
+    {
+        "isim": "Bitcoin",
+        "kisaltma": "BTC",
+        "logo": "🪙",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+    },
+    {
+        "isim": "Ethereum",
+        "kisaltma": "ETH",
+        "logo": "💠",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT"
+    },
+    {
+        "isim": "Solana",
+        "kisaltma": "SOL",
+        "logo": "🌌",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+    },
+    {
+        "isim": "Ethena USDe",
+        "kisaltma": "ENA",
+        "logo": "https://coin-images.coingecko.com/coins/images/33613/thumb/usde.png",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=ENAUSDT"
+    },
+    {
+        "isim": "Celestia",
+        "kisaltma": "TIA",
+        "logo": "https://coin-images.coingecko.com/coins/images/31967/thumb/tia.jpg",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=TIAUSDT"
+    },
+    {
+        "isim": "Arbitrum",
+        "kisaltma": "ARB",
+        "logo": "https://coin-images.coingecko.com/coins/images/16547/thumb/arb.jpg",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=ARBUSDT"
+    },
+    {
+        "isim": "EigenCloud (prev. EigenLayer)",
+        "kisaltma": "EIGEN",
+        "logo": "https://coin-images.coingecko.com/coins/images/37441/thumb/eigencloud.jpg",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbol=EIGENUSDT"
+    }
+]

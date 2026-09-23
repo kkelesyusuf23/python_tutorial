@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Süper Podcast Platformu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #121212; color: white; margin: 0; padding: 40px; }
+        h1 { color: #1db954; font-size: 38px; margin-bottom: 5px; } /* Spotify Yeşili */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; margin-top: 40px;}
+        .kart { background: #181818; padding: 20px; border-radius: 12px; transition: 0.3s; cursor: pointer; border: 1px solid #282828;}
+        .kart:hover { background: #282828; }
+        .kapak { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; margin-bottom: 15px;}
+        .baslik { font-size: 20px; font-weight: 800; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .sanatci { font-size: 14px; color: #b3b3b3; margin: 0 0 15px 0;}
+        .sure { font-size: 13px; color: #1db954; font-weight: bold; margin-bottom: 15px;}
+        
+        /* Modern Ses Oynatıcı */
+        audio { width: 100%; outline: none; margin-top: 10px;}
+        audio::-webkit-media-controls-panel { background-color: #1db954; }
+        audio::-webkit-media-controls-play-button { background-color: white; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <h1>🎙️ PythonCast</h1>
+    <p style="color: #b3b3b3; font-size: 16px; margin-top: 0;">
+        Bu platformdaki Şarkı İsimleri, Süreler ve Kapak resimleri veritabanından <b>değil</b>, doğrudan MP3 dosyasının içine sızarak <b>(Meta Veri / ID3)</b> çekilmektedir!
+    </p>
+
+    <div class="grid">
+        {% for p in podcastler %}
+        <div class="kart">
+            <img src="{{ p.kapak_url }}" alt="Kapak" class="kapak">
+            <h2 class="baslik">{{ p.baslik }}</h2>
+            <p class="sanatci">🎤 {{ p.sanatci }}</p>
+            <p class="sure">⏳ Süre: {{ p.sure }}</p>
+            
+            <!-- HTML5 Ses Oynatıcı -->
+            <audio controls>
+                <source src="{{ p.dosya_url }}" type="audio/mpeg">
+                Tarayıcınız bu özelliği desteklemiyor.
+            </audio>
+        </div>
+        {% endfor %}
+        
+        {% if not podcastler %}
+        <p style="color: #b3b3b3;">Klasörde okunacak .mp3 dosyası bulunamadı.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

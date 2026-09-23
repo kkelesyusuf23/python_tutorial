@@ -1,0 +1,7 @@
+# Proje 16: Otel Rezervasyon Sistemi (SQL JOIN & Relationships)
+
+- [x] ADIM 1: Gerekli klasörlerin (16_otel_rezervasyon ve sablonlar) oluşturulması. (Tamamlandı)
+- [x] ADIM 2: veritabani.py dosyasının oluşturulup SQLAlchemy ile Kullanıcı, Oda ve Rezervasyon (Foreign Key) tablolarının kodlanması.
+- [x] ADIM 3: Web arayüzü olan index.html dosyasının oluşturulması (Odaları listeleyen ve rezervasyon formu içeren tasarım).
+- [x] ADIM 4: main.py içerisine FastAPI sunucusunun, tablo oluşturma komutlarının (Base.metadata.create_all) ve /rezervasyon-yap rotasının yazılması.
+- [x] ADIM 5: Uygulamanın başlatılıp arayüz üzerinden veritabanı ilişkilerinin (Foreign Key) test edilmesi.

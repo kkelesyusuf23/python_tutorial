@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital Menü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Mobil uyumlu (Mobile-First) tasarım */
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; margin: 0; padding: 0; }
+        .header { background: #f59e0b; color: #0f172a; padding: 25px 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;}
+        .header h1 { margin: 0; font-size: 28px; font-weight: 800;}
+        .header p { margin: 5px 0 0; font-weight: 600; font-size: 16px; opacity: 0.9;}
+        
+        .menu-kapsayici { padding: 20px; }
+        h2 { border-bottom: 2px solid #334155; padding-bottom: 10px; color: #38bdf8; margin-top: 30px;}
+        
+        .yemek-karti { 
+            background: #1e293b; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid #334155;
+        }
+        .yemek-adi { font-size: 18px; font-weight: 600; margin-bottom: 5px;}
+        .yemek-icerik { font-size: 13px; color: #94a3b8; }
+        .yemek-fiyat { font-size: 18px; font-weight: 800; color: #10b981; }
+        
+        .siparis-ver {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #f59e0b;
+            color: #0f172a;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🍔 Süper Burger</h1>
+        <p>Hoş Geldiniz! (Masa No: {{ masa_no }})</p>
+    </div>
+
+    <div class="menu-kapsayici">
+        <h2>Ana Yemekler</h2>
+        
+        <div class="yemek-karti">
+            <div>
+                <div class="yemek-adi">Klasik Burger</div>
+                <div class="yemek-icerik">150gr dana köfte, marul, domates</div>
+            </div>
+            <div class="yemek-fiyat">180 ₺</div>
+        </div>
+
+        <div class="yemek-karti">
+            <div>
+                <div class="yemek-adi">Cheddar Şöleni</div>
+                <div class="yemek-icerik">200gr dana köfte, eritilmiş cheddar</div>
+            </div>
+            <div class="yemek-fiyat">240 ₺</div>
+        </div>
+
+        <h2>İçecekler</h2>
+        
+        <div class="yemek-karti">
+            <div>
+                <div class="yemek-adi">Buz Gibi Kola</div>
+                <div class="yemek-icerik">330ml kutu</div>
+            </div>
+            <div class="yemek-fiyat">45 ₺</div>
+        </div>
+    </div>
+
+    <button class="siparis-ver">Garsonu Çağır</button>
+
+</body>
+</html>

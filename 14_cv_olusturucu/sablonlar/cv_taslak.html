@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* PDF Motoru dışarıdan font çekmekte zorlanabileceği için sistem fontları kullanıyoruz */
+        body { 
+            font-family: 'Helvetica', 'Arial', sans-serif; 
+            padding: 50px; 
+            color: #1e293b; 
+            line-height: 1.6;
+        }
+        .header { 
+            border-bottom: 3px solid #3b82f6; 
+            padding-bottom: 25px; 
+            margin-bottom: 35px; 
+        }
+        h1 { 
+            color: #0f172a; 
+            margin: 0; 
+            font-size: 42px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .meslek { 
+            font-size: 22px; 
+            color: #3b82f6; 
+            margin-top: 8px; 
+            font-weight: bold;
+        }
+        .iletisim { 
+            margin-top: 20px; 
+            font-size: 14px; 
+            color: #64748b;
+        }
+        .iletisim span { margin-right: 25px; }
+        
+        .bolum { margin-bottom: 35px; }
+        .bolum h2 { 
+            color: #0f172a; 
+            font-size: 24px; 
+            border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 8px; 
+            text-transform: uppercase;
+        }
+        .icerik { 
+            font-size: 15px; 
+            color: #334155;
+            white-space: pre-line; /* Formdan gelen satır atlamalarını korur */
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>{{ ad_soyad }}</h1>
+        <div class="meslek">{{ meslek }}</div>
+        <div class="iletisim">
+            <span>📞 {{ telefon }}</span>
+            <span>✉️ {{ eposta }}</span>
+        </div>
+    </div>
+
+    <div class="bolum">
+        <h2>Hakkımda</h2>
+        <div class="icerik">{{ hakkimda }}</div>
+    </div>
+
+    <div class="bolum">
+        <h2>İş Deneyimi</h2>
+        <div class="icerik">{{ deneyim }}</div>
+    </div>
+
+    <div class="bolum">
+        <h2>Eğitim Bilgileri</h2>
+        <div class="icerik">{{ egitim }}</div>
+    </div>
+
+</body>
+</html>

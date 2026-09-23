@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Canlı Kripto Portföyü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #0b0e11; color: white; margin: 0; padding: 40px; }
+        h1 { color: #fcd535; font-size: 38px; margin-bottom: 5px; text-align: center;} 
+        .kutu { background: #181a20; padding: 30px; border-radius: 15px; border: 1px solid #2b3139; max-width: 700px; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        .satir { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #2b3139; align-items: center; transition: background 0.3s;}
+        .satir:last-child { border-bottom: none; padding-bottom: 0;}
+        .satir:first-child { padding-top: 0;}
+        
+        .coin-sol { display: flex; align-items: center; gap: 15px; }
+        .logo { font-size: 30px; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;}
+        .isim { font-size: 22px; font-weight: 600;}
+        .kisaltma { font-size: 14px; color: #848e9c; font-weight: 600; margin-top: 3px;}
+        
+        .fiyat { font-size: 24px; font-weight: 800; color: #0ecb81; transition: color 0.3s;}
+        .hata { color: #f6465d; }
+        
+        .arama-kutusu {
+            flex: 1;
+            padding: 15px;
+            background: #2b3139;
+            border: 1px solid #474d57;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .arama-kutusu:focus { outline: none; border-color: #fcd535; }
+        .btn-ekle {
+            padding: 0 25px; 
+            background: #fcd535; 
+            border: none; 
+            border-radius: 8px; 
+            font-family: 'Outfit', sans-serif; 
+            font-weight: 800; 
+            cursor: pointer; 
+            transition: 0.3s;
+            font-size: 16px;
+        }
+        .btn-ekle:hover { background: #e0bb2a; }
+        
+        .guncellendi { color: #fcd535 !important; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Binance Dinamik Portföyü</h1>
+    <p style="color: #848e9c; font-size: 16px; max-width: 700px; margin: 0 auto; text-align: center; line-height: 1.6;">
+        CoinGecko ve Binance ortaklığı ile! Eklediğin yeni coinin (Örn: ENA) logoları ve gerçek isimleri de anlık olarak harici API'lerden çözülür. Veriler <b>JSON</b> dosyasında kalıcıdır.
+    </p>
+
+    <div class="kutu">
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+            <input type="text" id="arama" class="arama-kutusu" placeholder="Mevcut Coinleri Filtrele..." onkeyup="coinFiltrele()">
+            <input type="text" id="yeni-coin" class="arama-kutusu" style="flex: 0.6;" placeholder="Örn: ENA, AVAX">
+            <button onclick="yeniCoinEkle()" class="btn-ekle">EKLE</button>
+        </div>
+
+        <div id="coin-listesi">
+            {% for coin in coinler %}
+            <div class="satir coin-satiri" id="{{ coin.kisaltma | lower }}-satir" data-isim="{{ coin.isim | lower }}" data-kisaltma="{{ coin.kisaltma | lower }}">
+                <div class="coin-sol">
+                    <!-- Dinamik Logo (Emoji veya Resim) -->
+                    <div class="logo" id="{{ coin.kisaltma | lower }}-logo">
+                        {% if coin.logo.startswith('http') %}
+                            <img src="{{ coin.logo }}" alt="Logo" style="width:35px; height:35px; border-radius:50%;">
+                        {% else %}
+                            {{ coin.logo }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <!-- Dinamik İsim (Değişebilmesi için id verdik) -->
+                        <div class="isim" id="{{ coin.kisaltma | lower }}-isim">{{ coin.isim }}</div>
+                        <div class="kisaltma">{{ coin.kisaltma }}</div>
+                    </div>
+                </div>
+                <div class="fiyat" id="{{ coin.kisaltma | lower }}-fiyat">Yükleniyor...</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        async function fiyatlariGetir() {
+            try {
+                const response = await fetch('/api/fiyatlar');
+                const veri = await response.json();
+                
+                veri.coinler.forEach(coin => {
+                    const idIsmi = coin.kisaltma.toLowerCase();
+                    const fiyatElementi = document.getElementById(idIsmi + '-fiyat');
+                    const logoElementi = document.getElementById(idIsmi + '-logo');
+                    const isimElementi = document.getElementById(idIsmi + '-isim');
+                    
+                    if(fiyatElementi) {
+                        // FİYAT GÜNCELLEMESİ
+                        if (fiyatElementi.innerText !== coin.fiyat && fiyatElementi.innerText !== "Yükleniyor...") {
+                            fiyatElementi.classList.add('guncellendi');
+                            setTimeout(() => fiyatElementi.classList.remove('guncellendi'), 500);
+                        }
+                        fiyatElementi.innerText = coin.fiyat;
+                        if (coin.durum === 'hata') fiyatElementi.classList.add('hata');
+                        
+                        // LOGO GÜNCELLEMESİ (Arka planda CoinGecko'dan yüklenmişse resmi çiz)
+                        if (logoElementi) {
+                            if (coin.logo.startsWith('http')) {
+                                logoElementi.innerHTML = `<img src="${coin.logo}" style="width:35px; height:35px; border-radius:50%;">`;
+                            } else {
+                                logoElementi.innerText = coin.logo;
+                            }
+                        }
+                        
+                        // İSİM GÜNCELLEMESİ (Örn: ENA -> Ethena olarak değiştirmek için)
+                        if (isimElementi) {
+                            isimElementi.innerText = coin.isim;
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Veriler çekilirken hata oluştu:", error);
+            }
+        }
+
+        fiyatlariGetir();
+        setInterval(fiyatlariGetir, 3000);
+
+        function coinFiltrele() {
+            const arananKelime = document.getElementById('arama').value.toLowerCase();
+            const satirlar = document.querySelectorAll('.coin-satiri');
+
+            satirlar.forEach(satir => {
+                const isim = satir.getAttribute('data-isim');
+                const kisaltma = satir.getAttribute('data-kisaltma');
+                if (isim.includes(arananKelime) || kisaltma.includes(arananKelime)) {
+                    satir.style.display = 'flex';
+                } else {
+                    satir.style.display = 'none';
+                }
+            });
+        }
+        
+        async function yeniCoinEkle() {
+            const kisaltma = document.getElementById('yeni-coin').value.trim();
+            if(!kisaltma) return;
+            
+            try {
+                const response = await fetch('/api/coin-ekle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kisaltma: kisaltma })
+                });
+                const sonuc = await response.json();
+                
+                if(sonuc.durum === 'basarili') {
+                    // Sayfayı yeniliyoruz ki geçici kum saati logosuyla listeye eklensin
+                    // Sonrasında AJAX döngüsü her 3 saniyede bir CoinGecko logosunu sormaya devam edecek!
+                    location.reload(); 
+                } else {
+                    alert(sonuc.mesaj);
+                }
+            } catch (error) {
+                alert("Sunucu ile iletişim kurulamadı!");
+            }
+        }
+    </script>
+</body>
+</html>
