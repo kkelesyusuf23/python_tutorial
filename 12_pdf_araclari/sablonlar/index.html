@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Süper PDF Araçları</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --secondary: #ec4899;
+            --secondary-hover: #db2777;
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to right, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tools-grid {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tool-card {
+            background-color: var(--card);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px;
+            width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .tool-card h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .file-input {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px dashed #475569;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            background: #0f172a;
+            color: #94a3b8;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-merge {
+            background-color: var(--primary);
+        }
+
+        .btn-merge:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-watermark {
+            background-color: var(--secondary);
+        }
+
+        .btn-watermark:hover {
+            background-color: var(--secondary-hover);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📄 Süper PDF Araçları</h1>
+        <p>Dosyalarınızı seçin, gerisini Python halletsin.</p>
+    </div>
+
+    <div class="tools-grid">
+        
+        <!-- BİRLEŞTİRME KARTI -->
+        <div class="tool-card">
+            <h2>🔗 PDF'leri Birleştir</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem;">En az 2 adet PDF dosyasını seçip tek bir kitapçık haline getirin.</p>
+            
+            <form action="/birlestir" method="POST" enctype="multipart/form-data">
+                <!-- multiple özelliği sayesinde kullanıcı tek seferde birden çok dosya seçebilir -->
+                <input class="file-input" type="file" name="dosyalar" accept="application/pdf" multiple required>
+                <button type="submit" class="btn-merge">Birleştir ve İndir</button>
+            </form>
+        </div>
+
+        <!-- FİLİGRAN KARTI -->
+        <div class="tool-card">
+            <h2>🔒 Filigran (Damga) Bas</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Seçilen tüm PDF sayfalarının ortasına GİZLİDİR damgası vurun.</p>
+            
+            <form action="/filigranla" method="POST" enctype="multipart/form-data">
+                <input class="file-input" type="file" name="dosyalar" accept="application/pdf" multiple required>
+                <button type="submit" class="btn-watermark">Damgala ve İndir</button>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+PROJE 11: DOSYA VE RESİM YÜKLEME (UPLOAD) API'Sİ - GÖREV LİSTESİ
+
+Merhaba Backend Geliştiricisi! Bu projede ilk kez "metin" (JSON) dışına çıkıp, kullanıcıdan fiziksel bir dosya alıp sunucu diskine kaydetmeyi (Upload) öğreneceksin. 
+
+İşte adım adım yapman gerekenler:
+
+[X] ADIM 1: Gerekli Kütüphaneleri Kur
+    - FastAPI'nin dosya yükleyebilmesi için 'python-multipart' kütüphanesine ihtiyacı var. 
+    - Terminalden kur: pip3 install fastapi uvicorn python-multipart jinja2
+
+[X] ADIM 2: Klasörleri Hazırla
+    - '11_dosya_yukleme' içinde 'sablonlar' (HTML için) ve 'yuklenenler' (Yüklenen dosyaların kaydedileceği klasör) adında iki klasör oluştur.
+
+[X] ADIM 3: Arayüzü Kodla (sablonlar/index.html)
+    - Basit bir HTML dosyası oluştur.
+    - İçine bir <form> etiketi koy. 
+    - ÇOK ÖNEMLİ: Bu formun 'enctype="multipart/form-data"' özelliğine sahip olması ŞARTTIR. Yoksa dosyalar sunucuya iletilemez.
+    - Formun içine bir <input type="file" name="dosya"> ve bir Yükle butonu koy.
+
+[X] ADIM 4: Sunucuyu Kodla (main.py) - Ana Rota
+    - FastAPI ve Jinja2 kullanarak '/' rotasında index.html dosyasını ekrana bastır.
+
+[X] ADIM 5: Dosya Yükleme Rotası (main.py) - /yukle
+    - '@app.post("/yukle")' adında bir rota oluştur.
+    - Parametre olarak 'dosya: UploadFile' bekle (FastAPI'nin kendi sınıfı).
+    - Dosyanın türünü (MIME type) kontrol et. Sadece 'image/jpeg' veya 'image/png' kabul et. Diğerlerinde Hata (HTTP 400) fırlat.
+    - Dosyanın adını alıp, 'yuklenenler' klasörünün içine bu dosyayı 'shutil.copyfileobj' veya asenkron 'await dosya.read()' ile disk'e (harddiske) yaz.
+
+[X] ADIM 6: Dosyaları Servis Etme (main.py)
+    - Yüklenen dosyaları tarayıcıda görebilmek için FastAPI'nin 'StaticFiles' sınıfını kullan.
+    - 'yuklenenler' klasörünü dış dünyaya '/dosyalar' rotası üzerinden static olarak bağla. (app.mount kullanımı)
+
+Takıldığın herhangi bir hata kodu, mantık veya FastAPI özelliği olursa çekinmeden sorabilirsin. Başarılar!
