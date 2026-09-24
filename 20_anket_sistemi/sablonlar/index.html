@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gelişmiş Anket Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f3f4f6; color: #1f2937; margin: 0; padding: 40px; }
+        .kutu { background: white; padding: 30px; border-radius: 12px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px;}
+        h1 { color: #4f46e5; text-align: center; margin-top: 0;}
+        h2 { border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-top: 0;}
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; margin-bottom: 15px; font-family: 'Outfit';}
+        
+        .btn-mavi { background: #4f46e5; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Outfit';}
+        .btn-mavi:hover { background: #4338ca; }
+        .btn-sari { background: #fbbf24; color: black; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Outfit'; margin-top: 10px;}
+        .btn-yesil { background: #10b981; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: 800; font-family: 'Outfit'; width: 100%; font-size: 16px;}
+        
+        .soru-blogu { background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 15px;}
+        .secenek { display: flex; gap: 10px; margin-bottom: 10px;}
+        
+        .anket-karti { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px; background: white;}
+        .anket-link { text-decoration: none; color: #4f46e5; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="kutu">
+        <h1>📊 Gelişmiş Anket Yaratıcısı</h1>
+        
+        <form action="/anket-olustur" method="post" id="anketFormu" onsubmit="formuHazirla(event)">
+            <input type="text" name="baslik" required placeholder="Anketinize bir başlık verin (Örn: Müşteri Memnuniyeti)">
+            
+            <div id="sorular-alani">
+                <!-- Javascript ile dinamik sorular buraya eklenecek -->
+            </div>
+            
+            <button type="button" class="btn-mavi" onclick="soruEkle()" style="margin-bottom: 25px;">+ Yeni Soru Ekle</button>
+            
+            <!-- Javascript formdaki her şeyi JSON yapıp buraya gizlice koyacak -->
+            <input type="hidden" name="sorular_json" id="sorular_json">
+            
+            <button type="submit" class="btn-yesil">🚀 ANKETİ YAYINLA</button>
+        </form>
+    </div>
+
+    <div class="kutu">
+        <h2>🔥 Aktif Anketler</h2>
+        {% for anket in anketler %}
+        <div class="anket-karti">
+            <div>
+                <strong style="font-size: 18px;">{{ anket.baslik }}</strong>
+                <div style="color: #6b7280; font-size: 14px;">{{ anket.sorular|length }} Soru Barındırıyor</div>
+            </div>
+            <a href="/anket/{{ anket.id }}" class="btn-mavi" style="text-decoration: none;">Ankete Katıl</a>
+        </div>
+        {% else %}
+        <p style="color: #6b7280;">Henüz hiç anket oluşturulmadı.</p>
+        {% endfor %}
+    </div>
+
+    <script>
+        let soruSayaci = 0;
+
+        // Ekrana yeni bir soru (beyaz kutu) çizer
+        function soruEkle() {
+            const index = soruSayaci++;
+            const div = document.createElement('div');
+            div.className = 'soru-blogu';
+            div.id = 'soru_' + index;
+            
+            div.innerHTML = `
+                <input type="text" class="soru-baslik" placeholder="${index + 1}. Soruyu Yazınız..." required>
+                <div class="secenekler-alani" id="secenekler_${index}">
+                    <!-- Başlangıçta 2 tane zorunlu seçenek kutusu koyuyoruz -->
+                    <div class="secenek"><input type="text" class="secenek-input" placeholder="A Seçeneği" required></div>
+                    <div class="secenek"><input type="text" class="secenek-input" placeholder="B Seçeneği" required></div>
+                </div>
+                <button type="button" class="btn-sari" onclick="secenekEkle(${index})">+ Şık Ekle</button>
+            `;
+            
+            document.getElementById('sorular-alani').appendChild(div);
+        }
+
+        // Bir sorunun içine yeni bir seçenek (Şık) çizer
+        function secenekEkle(soruIndex) {
+            const alan = document.getElementById('secenekler_' + soruIndex);
+            const div = document.createElement('div');
+            div.className = 'secenek';
+            div.innerHTML = `<input type="text" class="secenek-input" placeholder="Yeni Seçenek" required>`;
+            alan.appendChild(div);
+        }
+
+        // Form gönderilmeden hemen önce çalışır
+        function formuHazirla(event) {
+            const soruBloklari = document.querySelectorAll('.soru-blogu');
+            if (soruBloklari.length === 0) {
+                alert("Lütfen ankete en az 1 soru ekleyin!");
+                event.preventDefault();
+                return;
+            }
+
+            let anketVerisi = []; // Tüm anketi tutacak dev liste
+            
+            soruBloklari.forEach(blok => {
+                const baslik = blok.querySelector('.soru-baslik').value;
+                const secenekInputs = blok.querySelectorAll('.secenek-input');
+                let secenekler = [];
+                
+                secenekInputs.forEach(inp => {
+                    if(inp.value.trim() !== '') {
+                        secenekler.push(inp.value.trim());
+                    }
+                });
+                
+                // Eğer Javascript (JSON) mimarimiz esnek (dinamik) olmasaydı
+                // Soru ve seçenekleri tek bir değişkende toplayamazdık!
+                anketVerisi.push({
+                    "soru": baslik,
+                    "secenekler": secenekler
+                });
+            });
+
+            // Javascript'teki listemizi Metne (String) çevirip gizli input'a yerleştiriyoruz.
+            // Python FastAPI onu oradan alıp Veritabanına (SQL JSON Sütununa) kaydedecek!
+            document.getElementById('sorular_json').value = JSON.stringify(anketVerisi);
+        }
+
+        // Sayfa açılır açılmaz en az 1 soru ekranda olsun
+        window.onload = function() {
+            soruEkle();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Trello Klonu (Gerçek Zamanlı Kanban)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #0079bf; color: #172b4d; margin: 0; padding: 20px;}
+        h1 { color: white; text-align: center; font-weight: 800;}
+        
+        .pano { display: flex; gap: 20px; align-items: flex-start; justify-content: center; margin-top: 30px;}
+        .sutun { background: #ebecf0; width: 300px; border-radius: 8px; padding: 15px; min-height: 400px; display: flex; flex-direction: column; transition: background 0.2s;}
+        .sutun h3 { margin-top: 0; font-size: 18px; color: #172b4d; padding-bottom: 10px; border-bottom: 2px solid #dfe1e6;}
+        
+        .kart-listesi { flex: 1; min-height: 100px; }
+        
+        .kart { background: white; padding: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin-bottom: 10px; cursor: grab; font-size: 15px; transition: transform 0.1s;}
+        .kart:active { cursor: grabbing; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0,0,0,0.3);}
+        
+        /* Bir kartı tutup sütunun üzerine getirdiğimizde sütunun rengi değişsin (UX) */
+        .sutun.uzerinde { background: #dfe1e6; border: 2px dashed #0079bf;}
+        
+        /* Yeni Görev Ekleme Kutusu */
+        .yeni-gorev-alani { display: flex; gap: 5px; margin-top: 15px; padding-top: 15px; border-top: 2px solid #dfe1e6;}
+        .yeni-gorev-alani input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Outfit'; font-size: 14px;}
+        .yeni-gorev-alani button { background: #0079bf; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-family: 'Outfit'; font-weight: 600; transition: 0.2s;}
+        .yeni-gorev-alani button:hover { background: #005a8f;}
+    </style>
+</head>
+<body>
+
+    <h1>📋 Gerçek Zamanlı Proje Panosu</h1>
+    
+    <div style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 20px;">
+        Bağlantı Durumu: <strong id="durum">Bağlanılıyor...</strong>
+    </div>
+
+    <div class="pano">
+        <!-- ==================================================== -->
+        <!-- 1. YAPILACAKLAR SÜTUNU (TODO) -->
+        <!-- ==================================================== -->
+        <!-- ondragover: Kart sütunun üzerinde geziniyorsa izin ver -->
+        <!-- ondrop: Kart farenin sol tıkından serbest bırakılırsa (düşerse) -->
+        <div class="sutun" id="todo" ondragover="uzerineGeldiginde(event)" ondragleave="uzerindenCiktiginda(event)" ondrop="birakildiginda(event, 'todo')">
+            <h3>📝 Yapılacaklar</h3>
+            <div class="kart-listesi" id="liste-todo">
+                <!-- Sayfa ilk açıldığında Jinja veritabanındaki (TinyDB) kayıtları basar -->
+                {% for gorev in gorevler %}
+                    {% if gorev.sutun == 'todo' %}
+                        <!-- draggable="true" özelliği bir div'in fareyle tutulabilmesini sağlar (HTML5) -->
+                        <div class="kart" id="{{ gorev.id }}" draggable="true" ondragstart="suruklemeBasladi(event)">{{ gorev.baslik }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div class="yeni-gorev-alani">
+                <input type="text" id="yeniGorevBaslik" placeholder="Görev girin..." onkeypress="if(event.key==='Enter') gorevEkle()">
+                <button onclick="gorevEkle()">Ekle</button>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- 2. DEVAM EDENLER SÜTUNU (DOING) -->
+        <!-- ==================================================== -->
+        <div class="sutun" id="doing" ondragover="uzerineGeldiginde(event)" ondragleave="uzerindenCiktiginda(event)" ondrop="birakildiginda(event, 'doing')">
+            <h3>⏳ Devam Edenler</h3>
+            <div class="kart-listesi" id="liste-doing">
+                {% for gorev in gorevler %}
+                    {% if gorev.sutun == 'doing' %}
+                        <div class="kart" id="{{ gorev.id }}" draggable="true" ondragstart="suruklemeBasladi(event)">{{ gorev.baslik }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- 3. TAMAMLANANLAR SÜTUNU (DONE) -->
+        <!-- ==================================================== -->
+        <div class="sutun" id="done" ondragover="uzerineGeldiginde(event)" ondragleave="uzerindenCiktiginda(event)" ondrop="birakildiginda(event, 'done')">
+            <h3>✅ Bitenler</h3>
+            <div class="kart-listesi" id="liste-done">
+                {% for gorev in gorevler %}
+                    {% if gorev.sutun == 'done' %}
+                        <div class="kart" id="{{ gorev.id }}" draggable="true" ondragstart="suruklemeBasladi(event)">{{ gorev.baslik }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- JAVASCRIPT: WEB SOCKET & DRAG DROP MOTORU -->
+    <!-- ==================================================== -->
+    <script>
+        const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const socket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/trello`);
+        const durumGostergesi = document.getElementById('durum');
+
+        socket.onopen = () => { durumGostergesi.innerText = "🟢 Yayında"; durumGostergesi.style.color = "#a7f3d0"; };
+        socket.onclose = () => { durumGostergesi.innerText = "🔴 Koptu"; durumGostergesi.style.color = "#fca5a5"; };
+
+        // ---------------------------------------------
+        // A) SUNUCUYA (WEBSOCKET) VERİ GÖNDERME KISMI
+        // ---------------------------------------------
+        
+        function gorevEkle() {
+            const baslik = document.getElementById('yeniGorevBaslik').value.trim();
+            if(!baslik) return;
+            
+            // "yeni_gorev" emrini sunucuya yolla
+            socket.send(JSON.stringify({ tur: "yeni_gorev", baslik: baslik }));
+            document.getElementById('yeniGorevBaslik').value = "";
+        }
+
+        // Sürükleme başladığında kartın benzersiz ID'sini tarayıcı hafızasına al
+        function suruklemeBasladi(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        // Kart bir sütunun üzerinde geziyorsa, HTML5'in varsayılan "Bırakamazsın" engelini kaldır
+        function uzerineGeldiginde(event) {
+            event.preventDefault(); 
+            // Görsellik kat (Gri arkaplan)
+            event.currentTarget.classList.add("uzerinde");
+        }
+
+        // Kart sütundan çıkarsa görseli eski haline getir
+        function uzerindenCiktiginda(event) {
+            event.currentTarget.classList.remove("uzerinde");
+        }
+
+        // KART FAREDEN SERBEST BIRAKILDIĞINDA TETİKLENİR
+        function birakildiginda(event, hedefSutun) {
+            event.preventDefault();
+            event.currentTarget.classList.remove("uzerinde"); // Görselliği düzelt
+            
+            // Hafızaya aldığımız taşınan kartın ID'sini geri çek
+            const kartId = event.dataTransfer.getData("text");
+            
+            // Kart aynı sütuna bırakıldıysa boşuna işlem yapma
+            const kartElementi = document.getElementById(kartId);
+            const eskiSutun = kartElementi.parentElement.id.split('-')[1]; // Örn: 'liste-todo'dan 'todo'yu alır
+            if (eskiSutun === hedefSutun) return;
+
+            // DİKKAT: Kartı burada biz manuel HTML ile GÜNCELLEMİYORUZ! 
+            // Biz sadece sunucuya "Güncelle" emrini yolluyoruz. 
+            // Sunucu güncelleyip "Tamamdır" dediğinde (Aşağıdaki onmessage kısmında) kart ekranda hareket edecek.
+            socket.send(JSON.stringify({
+                tur: "tasi",
+                id: kartId,
+                hedef_sutun: hedefSutun
+            }));
+        }
+
+        // ---------------------------------------------
+        // B) SUNUCUDAN GELEN VERİYİ DİNLEME KISMI (GERÇEK ZAMANLI)
+        // ---------------------------------------------
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            
+            // Başka biri (veya biz) Görev Eklediyse
+            if (data.tur === "yeni_gorev") {
+                const yeniKart = document.createElement('div');
+                yeniKart.className = "kart";
+                yeniKart.id = data.gorev.id;
+                yeniKart.draggable = true;
+                yeniKart.innerText = data.gorev.baslik;
+                yeniKart.ondragstart = suruklemeBasladi;
+                
+                document.getElementById('liste-todo').appendChild(yeniKart);
+            }
+            
+            // Başka biri (veya biz) Kartı Taşıdıysa (Update işlemi geldiyse)
+            else if (data.tur === "tasi") {
+                const tasinanKart = document.getElementById(data.id);
+                const hedefListe = document.getElementById(`liste-${data.hedef_sutun}`);
+                
+                if(tasinanKart && hedefListe) {
+                    // Javascript bir objeyi (appendChild ile) yeni yerine eklerse, eski yerinden OTOMATİK silinir!
+                    hedefListe.appendChild(tasinanKart);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

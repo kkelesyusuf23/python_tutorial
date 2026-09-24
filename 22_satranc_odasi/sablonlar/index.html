@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Çevrimiçi Satranç Odası</title>
+    <!-- Satranç tahtasının görsel tasarımı (CSS) -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #262421; color: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        h1 { color: #ebecd0; margin-bottom: 5px; }
+        p { color: #85837f; margin-bottom: 20px;}
+        /* Satranç tahtası kutusu */
+        #tahta { width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden;}
+        #baglanti-durumu { margin-top: 20px; font-weight: 600; padding: 10px 20px; border-radius: 6px; background: #312e2b; }
+        .yesil { color: #81b64c; }
+        .kirmizi { color: #fa4444; }
+    </style>
+</head>
+<body>
+
+    <h1>♟️ Gerçek Zamanlı Satranç Odası</h1>
+    <p>Bağlantıyı 2 farklı tarayıcıdan açarak kendinizle (Rakiple) oynayabilirsiniz.</p>
+
+    <!-- Tahtanın çizileceği div -->
+    <div id="tahta"></div>
+    <div id="baglanti-durumu">Sunucuya bağlanılıyor...</div>
+
+    <!-- Gerekli kütüphaneler (jQuery, Chessboard.js Görsellik İçin, Chess.js Kurallar İçin) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+
+    <script>
+        // Satranç kurallarını (Kale çapraz gidemez vb.) denetleyen oyun motorunu başlatıyoruz
+        var oyun = new Chess();
+        var tahta = null;
+        var durumMetni = document.getElementById('baglanti-durumu');
+
+        // ==========================================
+        // 1. WEBSOCKET TÜNELİNİ AÇIYORUZ
+        // ==========================================
+        const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const socket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/satranc`);
+
+        socket.onopen = function() {
+            durumMetni.innerText = "🟢 Odaya Başarıyla Bağlanıldı (Rakip Bekleniyor...)";
+            durumMetni.classList.add("yesil");
+        };
+
+        socket.onclose = function() {
+            durumMetni.innerText = "🔴 Odadan Düşüldü. Yeniden bağlanılıyor...";
+            durumMetni.classList.add("kirmizi");
+        };
+
+        // ==========================================
+        // 2. RAKİP BİR HAMLE YAPTIĞINDA VEYA ODAYA İLK GİRDİĞİMİZDE (ONMESSAGE)
+        // ==========================================
+        socket.onmessage = function(event) {
+            const gelenMesaj = JSON.parse(event.data);
+            
+            // Eğer rakip hamle yaptıysa veya odaya ilk girdiğimizde sunucu bize güncel tahtayı (FEN) yolladıysa:
+            if (gelenMesaj.tur === "guncelleme" || gelenMesaj.tur === "hamle") {
+                const yeniFen = gelenMesaj.fen;
+                
+                // Hem arka plandaki kuralları hem de ekrandaki görselliği yeni tahtaya göre güncelle
+                oyun.load(yeniFen);
+                tahta.position(yeniFen);
+            }
+        };
+
+        // ==========================================
+        // 3. BİZ BİR HAMLE YAPTIĞIMIZDA (ONDROP)
+        // ==========================================
+        // Taş fareyle bırakıldığı an tetiklenir
+        function onDrop(kaynak, hedef) {
+            // Hamlenin satranç kurallarına uygun olup olmadığını kontrol et
+            var hamle = oyun.move({
+                from: kaynak,
+                to: hedef,
+                promotion: 'q' // Piyon sona ulaşırsa otomatik Vezir (Queen) yap
+            });
+
+            // Eğer hamle kural dışıysa (Örn: At çapraz gittiyse), taşı eski yerine geri koy ('snapback')
+            if (hamle === null) return 'snapback';
+
+            // EĞER HAMLE KURALLARA UYGUNSA:
+            // 1. Yeni tahta dizilimini (FEN formatını) al
+            const yeniDizilim = oyun.fen();
+            
+            // 2. Bu hamleyi WebSocket (Tünel) üzerinden Python sunucusuna (ve dolayısıyla rakibe) fırlat!
+            socket.send(JSON.stringify({
+                "tur": "hamle",
+                "fen": yeniDizilim,
+                "kaynak": kaynak,
+                "hedef": hedef
+            }));
+        }
+
+        // Taş kodlarını Türkçe isimlere çeviren sözlük
+        const tasIsimleri = {
+            'wP': 'Beyaz Piyon', 'wR': 'Beyaz Kale', 'wN': 'Beyaz At', 'wB': 'Beyaz Fil', 'wQ': 'Beyaz Vezir', 'wK': 'Beyaz Şah',
+            'bP': 'Siyah Piyon', 'bR': 'Siyah Kale', 'bN': 'Siyah At', 'bB': 'Siyah Fil', 'bQ': 'Siyah Vezir', 'bK': 'Siyah Şah'
+        };
+
+        // Chessboard.js resim yerine bu fonksiyonun ürettiği SVG (Resim) datasını kullanacak
+        function isimliTasUret(piece) {
+            const isim = tasIsimleri[piece];
+            const kelimeler = isim.split(' ');
+            const anaRenk = piece.startsWith('w') ? 'white' : 'black';
+            const golgeRengi = piece.startsWith('w') ? 'black' : 'white';
+            
+            // Satranç taşı resmi yerine, dinamik olarak içinde metin yazan bir SVG görseli yaratıyoruz
+            const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100">
+                <text x="50" y="45" font-family="Outfit, sans-serif" font-size="20" font-weight="900" fill="${anaRenk}" stroke="${golgeRengi}" stroke-width="1" text-anchor="middle">${kelimeler[0]}</text>
+                <text x="50" y="70" font-family="Outfit, sans-serif" font-size="24" font-weight="900" fill="${anaRenk}" stroke="${golgeRengi}" stroke-width="1.5" text-anchor="middle">${kelimeler[1]}</text>
+            </svg>`;
+            
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svgStr);
+        }
+
+        // Tahtanın görsel ayarları
+        var config = {
+            draggable: true,      // Taşlar sürüklenebilsin
+            position: 'start',    // Başlangıç dizilimi
+            onDrop: onDrop,       // Taş bırakıldığında onDrop fonksiyonunu çalıştır
+            pieceTheme: isimliTasUret // Klasik görseller yerine SVG yazılarımızı kullan
+        };
+
+        // Tahtayı ekrana çiz
+        tahta = Chessboard('tahta', config);
+
+        
+    </script>
+</body>
+</html>
