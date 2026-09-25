@@ -34,3 +34,4 @@ print(f"Toplam Bakiye: {bakiye_eth} ETH")
 print("---------------------------------\n")
 
 print("🚀 TEBRİKLER! Borsa (Binance) veya banka olmadan, kendi kodlarınla Matrix'e (Blockchain'e) doğrudan sızmayı başardın.")
+ 

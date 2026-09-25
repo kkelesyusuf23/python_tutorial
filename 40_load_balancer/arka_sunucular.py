@@ -22,3 +22,4 @@ def islem_yap():
 if __name__ == "__main__":
     print(f"[{PORT}] Numaralı Kopya Sunucu Başlatılıyor...")
     uvicorn.run("arka_sunucular:app", host="127.0.0.1", port=PORT)
+ 

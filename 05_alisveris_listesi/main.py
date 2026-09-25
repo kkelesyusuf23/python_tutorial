@@ -103,3 +103,4 @@ def miktar_guncelle(urun_id: int, istek: MiktarGuncelleme):
             return urun
     db.close()
     return {"durum": "bulunamadi"}
+ 

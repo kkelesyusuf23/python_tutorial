@@ -41,3 +41,4 @@ else:
     print("✅ KOD ONAYLANDI! Yazılımın standartlara uygun.")
 
 print("\n🚀 İşlem Tamam! Pylint, Flake8 gibi devasa yazılımların çekirdeğini (AST) inşa ettin.")
+ 

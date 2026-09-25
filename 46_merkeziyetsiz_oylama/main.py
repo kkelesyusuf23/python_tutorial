@@ -65,3 +65,4 @@ if __name__ == "__main__":
 
     if not secim_sistemi.zincir_gecerli_mi():
         print("❌ SİSTEM HİLEYİ ANINDA YAKALADI! ZİNCİR KOPTU VE OYLAMA İPTAL EDİLDİ.")
+ 

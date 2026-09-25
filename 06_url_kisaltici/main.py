@@ -80,3 +80,4 @@ def yonlendir(kisa_kod: str):
         
     db.close()
     raise HTTPException(status_code=404, detail="Böyle bir kısa link bulunamadı!")
+ 

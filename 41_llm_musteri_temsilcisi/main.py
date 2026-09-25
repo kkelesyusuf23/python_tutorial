@@ -30,7 +30,7 @@ class MusteriMesaji(BaseModel):
 @app.get("/")
 def anasayfa():
     return {"mesaj": "Kurumsal Yapay Zeka API'si Çalışıyor. POST /chat adresine JSON olarak istek atın."}
-
+ 
 @app.post("/chat")
 def yapay_zeka_ile_konus(istek: MusteriMesaji):
     # 2. LLM (Büyük Dil Modeli) Motorunu Başlatıyoruz

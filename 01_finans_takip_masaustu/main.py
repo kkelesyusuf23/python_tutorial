@@ -164,3 +164,4 @@ if __name__ == "__main__":
     pencere = FinansUygulamasi()
     pencere.show()
     sys.exit(uygulama.exec_())
+ 

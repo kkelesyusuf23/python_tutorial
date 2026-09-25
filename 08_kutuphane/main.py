@@ -21,14 +21,14 @@ def ana_sayfa(request: Request, db: Session = Depends(get_db)):
     # Tüm yazarları (ilişkili kitaplarıyla birlikte) çek
     yazarlar = db.query(Yazar).all()
     return templates.TemplateResponse("index.html", {"request": request, "yazarlar": yazarlar})
-
+  
 @app.post("/yazar_ekle")
 def yazar_ekle(isim: str = Form(...), ulke: str = Form(...), db: Session = Depends(get_db)):
     yeni_yazar = Yazar(isim=isim, ulke=ulke)
     db.add(yeni_yazar)
     db.commit()
     return RedirectResponse(url="/", status_code=303)
-
+ 
 @app.post("/kitap_ekle")
 def kitap_ekle(baslik: str = Form(...), sayfa_sayisi: int = Form(...), yazar_id: int = Form(...), db: Session = Depends(get_db)):
     # Yeni bir kitap oluşturuyoruz ve seçilen yazar_id ile onu o yazara kilitliyoruz.

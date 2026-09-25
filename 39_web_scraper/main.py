@@ -25,7 +25,7 @@ def haberleri_getir():
     }
     
     cevap = requests.get(url, headers=headers)
-    
+      
     # Eğer site çökmüşse veya bizi engellemişse hata dön
     if cevap.status_code != 200:
         return {"hata": "Hedef siteye ulaşılamadı", "durum_kodu": cevap.status_code}

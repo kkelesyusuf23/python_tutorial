@@ -40,3 +40,4 @@ if __name__ == "__main__":
     resmi_tani(kopek_resmi)
     
     print("✅ Test Tamamlandı. İstersen koda girip kendi resim URL'ni ekleyebilirsin!")
+ 

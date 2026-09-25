@@ -45,5 +45,3 @@ def yazi_oku(istek: Request, dosya_adi: str):
     # Yeni bir şablona (yazi.html) çevrilmiş kodu gönder
     return sablon_motoru.TemplateResponse("yazi.html", {"request": istek, "icerik": cevrilmis_html})
 
-
-    

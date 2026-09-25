@@ -34,3 +34,4 @@ for metin in haberler_ve_yorumlar:
     print("-" * 60)
 
 print("\n🚀 İşlem Tamam! Borsa botlarının veya şirket yöneticilerinin milyonlarca tweeti/haberi nasıl okuduğunu başarmış oldun.")
+ 

@@ -42,3 +42,4 @@ async def kullanici_koprusu():
 if __name__ == "__main__":
     # Müşterinin (Uygulamanın) muhatap olacağı TEK kapı burasıdır (Port 8000)
     uvicorn.run("api_gateway:app", host="127.0.0.1", port=8000, reload=True)
+ 

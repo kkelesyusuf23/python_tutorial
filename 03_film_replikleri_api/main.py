@@ -21,7 +21,7 @@ async def rastgele_replik_cek():
         gelen_yazar = veri.get("author")
         gelen_soz = veri.get("quote")
 
-    
+     
     db = Oturum()
 
     yeni_replik = Replik(film_adi="Bilinmeyen Film", karakter=gelen_yazar, soz=gelen_soz)

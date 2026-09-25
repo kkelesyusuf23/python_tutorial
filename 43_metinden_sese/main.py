@@ -27,3 +27,4 @@ print("▶️ Ses dosyası çalınıyor... (Lütfen hoparlörünün sesini aç)"
 os.system(f"afplay {dosya_adi}")
 
 print("\n🎉 Tebrikler! Artık koddaki METIN kısmına bütün bir kitabı yapıştırıp, kendi otomatik sesli kitaplarını oluşturabilirsin.")
+ 

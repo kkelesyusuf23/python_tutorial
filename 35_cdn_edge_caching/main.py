@@ -85,3 +85,4 @@ if __name__ == "__main__":
             f.write(os.urandom(1024 * 1024)) # 1 Megabayt rastgele veri
             
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+ 

@@ -22,7 +22,7 @@ async def hava_durumu_sorgula(request: Request, sehir: str = ""):
     sehir = sehir.strip().title()
     if not sehir:
         return templates.TemplateResponse("index.html", {"request": request, "veri": None, "hata": "Lütfen geçerli bir şehir girin."})
-        
+         
     guncel_zaman = time.time()
     
     # 1. ÖN BELLEK (CACHE) KONTROLÜ

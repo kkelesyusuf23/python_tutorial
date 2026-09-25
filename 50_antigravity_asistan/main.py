@@ -61,3 +61,4 @@ if __name__ == "__main__":
     ai_ajani("Bana içine mesaj bıraktığın bir dosya yaz!")
 
     print("\n👑 BÜYÜK FİNAL TAMAMLANDI! İşte sen benimle konuşurken, ben senin Mac bilgisayarına tam olarak bu OS kodlarıyla hükmediyordum.")
+  

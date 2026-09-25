@@ -53,3 +53,4 @@ def itiraf_et(istek: Request, mesaj: str = Form(...)):
     db.close()
 
     return RedirectResponse(url="/", status_code=303)
+ 

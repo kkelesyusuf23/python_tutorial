@@ -31,7 +31,7 @@ Yetenekler: Python, HTML, CSS, biraz JavaScript.
 Hobiler: Oyun oynamak, kitap okumak.
 İngilizce Seviyesi: Başlangıç (A2)
 """
-
+ 
 print("📝 Adayın CV'si okunuyor...")
 print("-" * 50)
 print(ORNEK_CV)

@@ -42,3 +42,4 @@ for i, baslik in enumerate(haberler, 1):
     print("-" * 60)
     
 print("\n🚀 İşlem Tamam! Kendi bülten otomasyonunu yazdın. İstersen bunu maile çevirip her sabah kendine attırabilirsin.")
+ 

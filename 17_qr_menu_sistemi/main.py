@@ -79,3 +79,4 @@ if __name__ == "__main__":
     # DİKKAT: host="0.0.0.0" komutu HASSAS bir komuttur! 
     # Sunucumuzu sadece kendi bilgisayarımıza değil, aynı Wi-Fi ağına bağlı TÜM CİHAZLARA (Telefon, Tablet vb.) açar.
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+ 
