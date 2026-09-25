@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Discord Ses Kanalı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #313338; color: white; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;}
+        
+        .discord-kutusu { background: #2b2d31; width: 400px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
+        .discord-kutusu h1 { margin-top: 0; font-size: 20px; font-weight: 800; color: #f2f3f5; border-bottom: 1px solid #3f4147; padding-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+        
+        .kanal-durumu { background: #1e1f22; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #949ba4; text-align: center;}
+        
+        .baglan-btn { width: 100%; background: #23a559; color: white; border: none; padding: 15px; font-size: 18px; font-weight: 800; border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: 'Outfit'; display: flex; justify-content: center; align-items: center; gap: 10px;}
+        .baglan-btn:hover { background: #1a7a42;}
+        .baglan-btn.kirmizi { background: #da373c;}
+        .baglan-btn.kirmizi:hover { background: #a1282c;}
+
+        .profil-resmi { width: 40px; height: 40px; background: #5865f2; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 20px; margin-right: 10px;}
+        .ses-dalgasi { width: 15px; height: 15px; background: #23a559; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; opacity: 0;}
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 165, 89, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(35, 165, 89, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 165, 89, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="discord-kutusu">
+        <h1>🔊 Genel Ses Kanalı</h1>
+        
+        <div class="kanal-durumu" id="durumMetni">
+            Kanala henüz katılmadınız.<br>Mikrofon izni istenecek.
+        </div>
+
+        <button id="baglanBtn" class="baglan-btn" onclick="kanalaKatil()">🎙️ Sese Bağlan</button>
+
+        <!-- Karşı tarafın Sesi buradan duyulacak (Hoparlör) -->
+        <audio id="uzakSes" autoplay></audio>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. WEBSOCKET (SADECE SİNYAL İÇİN) VE WEBRTC KURULUMU
+        // ==========================================
+        const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const socket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/sinyal`);
+        
+        let peerConnection;
+        let mikrofonAkisi;
+        
+        // Google'ın ücretsiz STUN sunucuları. (İki farklı IP'nin birbirini bulmasını sağlar)
+        const webrtcAyar = { 'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}] };
+
+        // ==========================================
+        // 2. KANALA KATILMA VE MİKROFONA ERİŞİM
+        // ==========================================
+        async function kanalaKatil() {
+            try {
+                // Tarayıcının yerleşik MediaDevices API'sini çağırıp Mikrofon izni istiyoruz.
+                mikrofonAkisi = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                document.getElementById('durumMetni').innerHTML = `<span class="profil-resmi">👤</span> <span class="ses-dalgasi" style="opacity:1;"></span> Sese Bağlandınız!`;
+                
+                const btn = document.getElementById('baglanBtn');
+                btn.className = "baglan-btn kirmizi";
+                btn.innerText = "📞 Bağlantıyı Kes";
+                btn.onclick = () => location.reload(); // Şimdilik basınca sayfayı yenileyip çıksın
+                
+                // WebRTC tünelini (P2P Motorunu) başlat
+                peerConnection = new RTCPeerConnection(webrtcAyar);
+                
+                // Mikrofonumuzdan çıkan sesi bu tünele ekle
+                mikrofonAkisi.getTracks().forEach(track => peerConnection.addTrack(track, mikrofonAkisi));
+                
+                // Tünelden KARŞI TARAFIN SESİ geldiğinde hoparlöre ver
+                peerConnection.ontrack = event => {
+                    document.getElementById('uzakSes').srcObject = event.streams[0];
+                };
+                
+                // Kendi IP adresimizi / Rotamızı bulduğumuzda bunu sunucu üzerinden (Signaling) diğerine fırlat
+                peerConnection.onicecandidate = event => {
+                    if (event.candidate) {
+                        socket.send(JSON.stringify({'tip': 'candidate', 'candidate': event.candidate}));
+                    }
+                };
+                
+                // Odaya girdiğimizi herkese bağır!
+                socket.send(JSON.stringify({'tip': 'katildi'}));
+
+            } catch (hata) {
+                alert("Mikrofon erişimi reddedildi veya bulunamadı!\nHata: " + hata);
+            }
+        }
+
+        // ==========================================
+        // 3. SİNYAL SUNUCUSUNDAN (SANTALDEN) GELEN CEVAPLAR
+        // ==========================================
+        socket.onmessage = async (event) => {
+            const data = JSON.parse(event.data);
+            if (!peerConnection) return; // Henüz sese katılmadıysak gelen sinyalleri umursama
+            
+            // Biri kanala yeni katıldı, ona kendimizi tanıtan bir TANIŞMA (Offer) paketi hazırlayalım
+            if (data.tip === 'katildi') {
+                const teklif = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(teklif);
+                socket.send(JSON.stringify({'tip': 'offer', 'offer': teklif}));
+            } 
+            
+            // Bize bir TANIŞMA (Offer) paketi geldi, kabul edip (Answer) cevabı dönelim
+            else if (data.tip === 'offer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const cevap = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(cevap);
+                socket.send(JSON.stringify({'tip': 'answer', 'answer': cevap}));
+            } 
+            
+            // Tanışma tamam, karşı taraf cevabımızı onayladı
+            else if (data.tip === 'answer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            } 
+            
+            // IP Adresi ve Rota Bilgisi geldi (ICE Candidate)
+            else if (data.tip === 'candidate') {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+        };
+    </script>
+</body>
+</html>

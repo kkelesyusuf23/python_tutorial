@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canlı Kurye Takibi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js Harita Kütüphanesi -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f3f4f6; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh;}
+        
+        /* Üst Bilgi Barı */
+        .ust-bar { background: #ea580c; color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; position: relative;}
+        .ust-bar h1 { margin: 0; font-size: 24px; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 10px;}
+        .durum { font-size: 15px; margin-top: 5px; opacity: 0.9;}
+        
+        /* Haritanın içine oturacağı div */
+        #harita-kutu { flex: 1; width: 100%; background: #ddd;}
+        
+        /* Bilgi Kutucuğu (Sol Alt) */
+        .bilgi-kutu { position: absolute; bottom: 30px; left: 30px; background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;}
+        .bilgi-kutu h3 { margin: 0 0 5px 0; color: #111827; font-size: 16px;}
+        .kordinat { font-family: monospace; color: #ea580c; font-size: 14px; font-weight: 600;}
+    </style>
+</head>
+<body>
+
+    <div class="ust-bar">
+        <h1>🛵 Getir / Yemeksepeti Klonu</h1>
+        <div class="durum" id="durumText">Kurye aranıyor...</div>
+    </div>
+
+    <!-- Leaflet.js haritası bu kutunun içine çizilecek -->
+    <div id="harita-kutu"></div>
+
+    <div class="bilgi-kutu">
+        <h3>📍 Canlı Koordinat</h3>
+        <div class="kordinat" id="koordinatText">Bekleniyor...</div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. LEAFLET.JS HARİTASINI BAŞLAT VE KATMANLARI(TEMA) AYARLA
+        // ==========================================
+        var harita = L.map('harita-kutu').setView([41.0369, 28.9850], 16);
+
+        // Tema 1: Standart Sokak Haritası
+        var sokakTemasi = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19, attribution: '© OpenStreetMap'
+        });
+
+        // Tema 2: Gece / Karanlık Tema
+        var karanlikTema = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19, attribution: '© CartoDB'
+        });
+
+        // Tema 3: Uydu Görünümü (Esri)
+        var uyduTemasi = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19, attribution: 'Tiles © Esri'
+        });
+
+        // Başlangıçta Sokak temasını haritaya ekle
+        sokakTemasi.addTo(harita);
+
+        // Sağ üst köşedeki Tema Seçim Kutusunu (Layer Control) oluştur
+        var haritaStilleri = {
+            "🗺️ Sokak Görünümü": sokakTemasi,
+            "🌙 Karanlık Tema": karanlikTema,
+            "🛰️ Uydu Görünümü": uyduTemasi
+        };
+        L.control.layers(haritaStilleri).addTo(harita);
+
+        // Kuryeyi temsil eden o meşhur Kırmızı Pin (İşaretçi)
+        var kuryePini = L.marker([41.0369, 28.9850]).addTo(harita);
+
+
+        // ==========================================
+        // 2. WEBSOCKET BAĞLANTISI (CANLI VERİ AKIŞI)
+        // ==========================================
+        const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const socket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/takip`);
+        
+        socket.onopen = () => {
+            document.getElementById('durumText').innerText = "🟢 Sipariş yolda! Kurye canlı olarak takip ediliyor.";
+        };
+
+        // ==========================================
+        // 3. SUNUCUDAN YENİ KOORDİNAT GELDİĞİNDE
+        // ==========================================
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data); // data.enlem ve data.boylam geldi
+            
+            // 1. Haritadaki kırmızı pini kuryenin yeni lokasyonuna KAYDIR
+            kuryePini.setLatLng([data.enlem, data.boylam]);
+            
+            // 2. Kamera açısını (Ekranı) pini takip edecek şekilde hafifçe KAYDIR (Paning)
+            harita.panTo([data.enlem, data.boylam]);
+            
+            // 3. Sol alttaki bilgi kutucuğunu güncelle
+            document.getElementById('koordinatText').innerText = `${data.enlem.toFixed(4)}, ${data.boylam.toFixed(4)}`;
+        };
+    </script>
+</body>
+</html>
