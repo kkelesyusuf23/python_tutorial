@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kullanıcı Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        
+        .profil-karti { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center; max-width: 400px; width: 100%; border: 1px solid #e2e8f0; }
+        
+        .avatar { width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 20px; border: 4px solid #fff; }
+        .kullanici-adi { font-size: 28px; font-weight: 800; margin: 0; color: #1e293b; }
+        .kullanici-mail { font-size: 16px; color: #64748b; margin-top: 5px; margin-bottom: 20px;}
+        
+        .tebrikler { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-bottom: 30px; }
+        
+        .cikis-btn { background: #ef4444; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: 800; border-radius: 8px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block; }
+        .cikis-btn:hover { background: #dc2626; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="profil-karti">
+        <!-- user degiskeni, FastAPI (main.py) tarafindan bu sablona gonderiliyor -->
+        <img src="{{ user.avatar_url }}" alt="Avatar" class="avatar">
+        <h2 class="kullanici-adi">{{ user.name or user.login }}</h2>
+        <div class="kullanici-mail">@{{ user.login }}</div>
+        
+        <div class="tebrikler">🎉 OAuth2.0 Token başarıyla alındı ve şifresiz giriş yapıldı!</div>
+        
+        <a href="/logout" class="cikis-btn">Güvenli Çıkış Yap</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ödeme Başarılı!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .basari-karti { background: #1e293b; padding: 50px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; max-width: 400px; border: 1px solid #10b981; }
+        
+        .basari-ikon { width: 80px; height: 80px; background: #10b981; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 40px; color: white; margin-bottom: 20px; animation: bounce 1s ease; }
+        
+        .baslik { font-size: 28px; font-weight: 800; color: #f8fafc; margin-bottom: 10px; }
+        .aciklama { color: #94a3b8; font-size: 16px; margin-bottom: 30px; line-height: 1.5; }
+        
+        .btn { background: #334155; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #475569; }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="basari-karti">
+        <div class="basari-ikon">✓</div>
+        <div class="baslik">Ödeme Başarılı!</div>
+        <div class="aciklama">Tebrikler, 19$ tahsil edildi. Hesabınız başarıyla <b>PREMIUM</b> statüsüne yükseltildi. Artık tüm özelliklere erişebilirsiniz.</div>
+        
+        <a href="/" class="btn">Ana Sayfaya Dön</a>
+    </div>
+
+</body>
+</html>
