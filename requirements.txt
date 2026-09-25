@@ -1,0 +1,41 @@
+# Web Frameworks & APIs
+fastapi
+flask
+uvicorn
+requests
+aiohttp
+python-multipart
+websockets
+python-socketio
+
+# Database & Authentication
+sqlalchemy
+pydantic
+PyJWT
+passlib
+bcrypt
+
+# Artificial Intelligence & NLP
+openai
+google-generativeai
+transformers
+torch
+langchain
+
+# Computer Vision & AR (Project 51)
+opencv-python
+mediapipe==0.10.14
+numpy
+
+# Web Scraping & Data Processing
+beautifulsoup4
+pandas
+lxml
+
+# Web3 & Blockchain
+web3
+eth-account
+
+# Task Queues & Brokers
+celery
+redis
